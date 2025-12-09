@@ -43,5 +43,5 @@ $ npm run build:linux
    CSC_LINK=${BASE64_FROM_csc_link_b64.txt}
    CSC_KEY_PASSWORD=${PASSWORD_FROM_csc_key_password.txt}
    ```
-4. Run `npm run build:win` on Windows. The script loads the `.env` values and signs the binaries via electron-builder.
-5. Verify the signature with `Get-AuthenticodeSignature .\release\<version>\self-sign-electron-poc.exe`.
+3. Run `npm run build:win` on Windows. The script loads the `.env` values and signs the binaries via electron-builder.
+4. Verify the signature with `Get-AuthenticodeSignature .\release\<version>\self-sign-electron-poc.exe`.

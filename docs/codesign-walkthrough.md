@@ -10,7 +10,6 @@
 - Added GitHub Actions workflow `/.github/workflows/release.yml` for signed Windows releases using secrets `CSC_LINK_B64` (Base64 PFX) and `CSC_KEY_PASSWORD`.
 - Added helper PowerShell scripts in `scripts/shell` (see `docs/scripts-readme.md`):
   - `create-self-signed-cert.ps1`
-  - `export-pfx-base64.ps1`
   - `verify-signature.ps1`
 
 ## Steps performed

@@ -9,12 +9,7 @@ Location: `scripts/shell/`
 - Writes Base64 of the PFX to `scripts/output/csc_link_b64.txt` (for `CSC_LINK`/`CSC_LINK_B64`).
 - Run in PowerShell (Admin).
 
-2) `export-pfx-base64.ps1`
-- Reads `scripts/output/self-sign-electron-poc.pfx` and prints/copies its Base64 to clipboard.
-- Use the Base64 as the GitHub secret `CSC_LINK_B64`.
-- Run in PowerShell.
-
-3) `verify-signature.ps1`
+2) `verify-signature.ps1`
 - Verifies Authenticode signature for a built installer or exe.
 - Usage example:
   ```

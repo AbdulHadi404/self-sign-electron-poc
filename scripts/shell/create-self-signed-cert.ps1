@@ -1,8 +1,9 @@
 <#
-Creates a self-signed code-signing certificate, exports PFX+CER, and writes:
+Creates a self-signed code-signing certificate and outputs everything needed as text:
 - csc_link_b64.txt (Base64 for CSC_LINK/CSC_LINK_B64)
 - csc_key_password.txt (the PFX password used)
 Outputs are placed in scripts/output/. Run in PowerShell (Admin).
+Note: PFX/CER are still written to scripts/output/ for local signing/verification.
 #>
 
 $outDir = Join-Path $PSScriptRoot "..\output"
