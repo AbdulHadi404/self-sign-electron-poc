@@ -1,14 +1,21 @@
 <#
-Creates a self-signed code-signing certificate, exports PFX+CER into the repo's cert/ folder.
-Run in PowerShell (Admin). Adjust subject/password/paths as needed.
+Creates a self-signed code-signing certificate, exports PFX+CER, and writes:
+- csc_link_b64.txt (Base64 for CSC_LINK/CSC_LINK_B64)
+- csc_key_password.txt (the PFX password used)
+Outputs are placed in scripts/output/. Run in PowerShell (Admin).
 #>
 
-$certDir = Join-Path $PSScriptRoot "..\..\cert"
-New-Item -ItemType Directory -Force -Path $certDir | Out-Null
+$outDir = Join-Path $PSScriptRoot "..\output"
+New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
-$pfxPath = Join-Path $certDir "self-sign-electron-poc.pfx"
-$cerPath = Join-Path $certDir "self-sign-electron-poc.cer"
-$password = Read-Host -AsSecureString "Enter password for PFX"
+$pfxPath = Join-Path $outDir "self-sign-electron-poc.pfx"
+$cerPath = Join-Path $outDir "self-sign-electron-poc.cer"
+$b64Path = Join-Path $outDir "csc_link_b64.txt"
+$pwdPath = Join-Path $outDir "csc_key_password.txt"
+
+# Generate a password automatically (you can change this to prompt if desired)
+$passwordPlain = [Guid]::NewGuid().ToString("N")
+$password = ConvertTo-SecureString -String $passwordPlain -AsPlainText -Force
 
 Write-Host "Creating self-signed certificate..."
 $cert = New-SelfSignedCertificate `
@@ -30,8 +37,16 @@ Export-PfxCertificate -Cert $cert -FilePath $pfxPath -Password $password | Out-N
 Write-Host "Exporting CER to $cerPath"
 Export-Certificate -Cert $cert -FilePath $cerPath | Out-Null
 
-Write-Host "Done."
-Write-Host "PFX: $pfxPath"
-Write-Host "CER: $cerPath"
+# Produce Base64 for CSC_LINK / CSC_LINK_B64
+$b64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes($pfxPath))
+Set-Content -Path $b64Path -Value $b64 -Encoding UTF8
+Set-Content -Path $pwdPath -Value $passwordPlain -Encoding UTF8
+
+Write-Host "Generated files in $outDir:"
+Write-Host "  PFX: $pfxPath"
+Write-Host "  CER: $cerPath"
+Write-Host "  CSC_LINK/CSC_LINK_B64: $b64Path"
+Write-Host "  CSC_KEY_PASSWORD: $pwdPath"
+
 
 

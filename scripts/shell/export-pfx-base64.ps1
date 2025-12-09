@@ -1,9 +1,9 @@
 <#
-Reads the PFX and prints base64 to use for GitHub secret CSC_LINK_B64.
+Reads the PFX from scripts/output and prints base64 to use for GitHub secret CSC_LINK_B64.
 Run in PowerShell. Outputs to console and also copies to clipboard.
 #>
 
-$certDir = Join-Path $PSScriptRoot "..\..\cert"
+$certDir = Join-Path $PSScriptRoot "..\output"
 $pfxPath = Join-Path $certDir "self-sign-electron-poc.pfx"
 
 if (-not (Test-Path $pfxPath)) {

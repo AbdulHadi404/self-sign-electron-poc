@@ -30,3 +30,5 @@ out
 *.log*
 *.pfx
 *.p12
+cert/
+scripts/output/
