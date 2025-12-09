@@ -38,7 +38,7 @@ jobs:
 
       - name: Package unsigned (Windows)
         run: |
-          npx electron-builder --win --x64 --projectVersion ${{ github.event.inputs.version }} --publish never --config electron-builder.yml
+          npx electron-builder --win --x64 --project-version ${{ github.event.inputs.version }} --publish never --config electron-builder.yml
 
       - name: Archive artifacts
         run: |
