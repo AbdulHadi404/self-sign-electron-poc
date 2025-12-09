@@ -1,4 +1,4 @@
-name: Signed Patch Release
+name: Signed Windows Release
 
 on:
   workflow_dispatch:
