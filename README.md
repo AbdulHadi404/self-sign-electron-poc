@@ -33,15 +33,18 @@ $ npm run build:mac
 $ npm run build:linux
 ```
 
-## Code Signing (Self-signed for testing)
+## Code signing (self-signed for testing)
 
-1. Create a self-signed PFX certificate using PowerShell (see `docs/electron-codesign-guide.md`). You can use `scripts/shell/create-self-signed-cert.ps1` which outputs:
-   - `scripts/output/csc_link_b64.txt` (Base64 for CSC_LINK/CSC_LINK_B64)
-   - `scripts/output/csc_key_password.txt` (the PFX password)
-2. Add a `.env` file in the project root with:
+1) Generate a PFX via our script (Admin): `scripts/shell/create-self-signed-cert.ps1`
+   - Outputs in `scripts/output/`: `csc_link_b64.txt`, `csc_key_password.txt`, `env.txt` (ready for repo root)
+2) Create `.env` in project root:
    ```
-   CSC_LINK=${BASE64_FROM_csc_link_b64.txt}
-   CSC_KEY_PASSWORD=${PASSWORD_FROM_csc_key_password.txt}
+   CSC_LINK=<Base64 from csc_link_b64.txt>
+   CSC_KEY_PASSWORD=<from csc_key_password.txt>
    ```
-3. Run `npm run build:win` on Windows. The script loads the `.env` values and signs the binaries via electron-builder.
-4. Verify the signature with `Get-AuthenticodeSignature .\release\<version>\self-sign-electron-poc.exe`.
+3) Build/sign: `npm run build:win`
+4) Verify: `Get-AuthenticodeSignature .\release\<version>\self-sign-electron-poc-<version>-setup.exe`
+
+Notes:
+- Self-signed is test-only; SmartScreen will still show “Unknown publisher”.
+- See `docs/electron-codesign-guide.md` and `docs/codesign-walkthrough.md` for full context.
