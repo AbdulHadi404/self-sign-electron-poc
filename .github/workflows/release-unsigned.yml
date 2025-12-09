@@ -1,4 +1,4 @@
-name: Unsigned Windows Build
+name: Unsigned Windows Release
 
 on:
   workflow_dispatch:
