@@ -1,0 +1,63 @@
+name: Signed Windows Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (matches package.json)'
+        required: true
+        default: '1.0.0'
+
+jobs:
+  build-win:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: self-sign-electron-poc
+
+    env:
+      NODE_VERSION: 20
+      CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+      CSC_LINK_B64: ${{ secrets.CSC_LINK_B64 }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: self-sign-electron-poc/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare code-signing cert
+        shell: pwsh
+        run: |
+          if (-not $env:CSC_LINK_B64) { throw "CSC_LINK_B64 secret is missing" }
+          New-Item -ItemType Directory -Force -Path cert | Out-Null
+          $pfxPath = "cert/self-sign-electron-poc.pfx"
+          [IO.File]::WriteAllBytes($pfxPath, [Convert]::FromBase64String($env:CSC_LINK_B64))
+          # Make path absolute for electron-builder
+          $absPath = Resolve-Path $pfxPath
+          "CSC_LINK=$absPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Build and sign (Windows)
+        run: npm run build:win
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer-${{ github.run_id }}
+          path: release/${{ github.event.inputs.version }}/self-sign-electron-poc-${{ github.event.inputs.version }}-setup.exe
+          if-no-files-found: error
+
+      - name: Upload unpacked app
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-unpacked-${{ github.run_id }}
+          path: release/${{ github.event.inputs.version }}/win-unpacked/**
+          if-no-files-found: error

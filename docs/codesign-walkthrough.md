@@ -1,4 +1,4 @@
-# Self-Signed Code Signing Walkthrough (based on `electron-codesign-guide.md`)
+# Self-Signed Code Signing Walkthrough (based on `docs/electron-codesign-guide.md`)
 
 ## What we changed (repo)
 
@@ -7,6 +7,11 @@
 - `package.json`: `build:win` uses `dotenv -e .env` so `CSC_LINK`/`CSC_KEY_PASSWORD` are loaded at build time (guide Part D).
 - `.gitignore`: ignoring `*.pfx`/`*.p12` (guide Part C security note).
 - Created `.env` (locally) to hold secrets; not committed. We used `env.txt` earlier as placeholder, then `.env`.
+- Added GitHub Actions workflow `/.github/workflows/release.yml` for signed Windows releases using secrets `CSC_LINK_B64` and `CSC_KEY_PASSWORD`.
+- Added helper PowerShell scripts in `scripts/shell` (see `docs/scripts-readme.md`):
+  - `create-self-signed-cert.ps1`
+  - `export-pfx-base64.ps1`
+  - `verify-signature.ps1`
 
 ## Steps performed
 

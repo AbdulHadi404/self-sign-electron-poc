@@ -35,7 +35,7 @@ $ npm run build:linux
 
 ## Code Signing (Self-signed for testing)
 
-1. Create a self-signed PFX certificate using PowerShell (see `electron-codesign-guide.md` in repo root).
+1. Create a self-signed PFX certificate using PowerShell (see `docs/electron-codesign-guide.md`).
 2. Save the PFX somewhere outside the repo and note its password.
 3. Add a `.env` file in the project root with:
    ```
