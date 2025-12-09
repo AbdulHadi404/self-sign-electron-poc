@@ -11,9 +11,6 @@ on:
 jobs:
   build-and-release:
     runs-on: windows-latest
-    defaults:
-      run:
-        working-directory: self-sign-electron-poc
 
     env:
       NODE_VERSION: 20
