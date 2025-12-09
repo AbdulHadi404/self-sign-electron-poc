@@ -17,6 +17,7 @@ jobs:
       CSC_IDENTITY_AUTO_DISCOVERY: 'false'
       CSC_LINK: ''
       CSC_KEY_PASSWORD: ''
+      ELECTRON_BUILDER_SKIP_PUBLISH: 'true'
 
     steps:
       - name: Checkout
@@ -32,10 +33,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build unsigned (Windows)
+      - name: Build (bundle)
+        run: npm run build
+
+      - name: Package unsigned (Windows)
         run: |
-          npm run build
-          electron-builder --win --x64 --config electron-builder.yml --publish never
+          npx electron-builder --win --x64 --projectVersion ${{ github.event.inputs.version }} --publish never --config electron-builder.yml
 
       - name: Archive artifacts
         run: |

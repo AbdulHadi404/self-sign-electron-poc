@@ -16,6 +16,8 @@ jobs:
       NODE_VERSION: 20
       CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
       CSC_LINK: ${{ secrets.CSC_LINK_B64 }}
+      ELECTRON_BUILDER_SKIP_PUBLISH: 'true'
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout
@@ -31,8 +33,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build and sign (Windows)
-        run: npm run build:win
+      - name: Build (bundle)
+        run: npm run build
+
+      - name: Package and sign (Windows)
+        run: |
+          npx electron-builder --win --x64 --projectVersion ${{ github.event.inputs.version }} --publish never
 
       - name: Archive artifacts
         run: |
