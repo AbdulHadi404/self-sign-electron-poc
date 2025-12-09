@@ -2,6 +2,7 @@ appId: com.electron.app
 productName: self-sign-electron-poc
 directories:
   buildResources: build
+  output: release/${version}
 files:
   - '!**/.vscode/*'
   - '!src/*'
@@ -12,6 +13,12 @@ files:
 asarUnpack:
   - resources/**
 win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: build/icon.ico
+  signAndEditExecutable: true
   executableName: self-sign-electron-poc
 nsis:
   artifactName: ${name}-${version}-setup.${ext}

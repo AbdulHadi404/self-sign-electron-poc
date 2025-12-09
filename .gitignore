@@ -28,3 +28,5 @@ out
 .DS_Store
 .eslintcache
 *.log*
+*.pfx
+*.p12
