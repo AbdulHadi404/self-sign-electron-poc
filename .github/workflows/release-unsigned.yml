@@ -8,6 +8,9 @@ on:
         required: true
         default: '1.0.1-unsigned'
 
+permissions:
+  contents: write
+
 jobs:
   build-unsigned:
     runs-on: windows-latest
@@ -47,11 +50,16 @@ jobs:
         run: |
           powershell -Command "Compress-Archive -Path 'release/${{ github.event.inputs.version }}/self-sign-electron-poc-${{ github.event.inputs.version }}-setup.exe' -DestinationPath release-${{ github.event.inputs.version }}-unsigned.zip"
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: unsigned-windows-${{ github.event.inputs.version }}
-          path: |
+          tag_name: v${{ github.event.inputs.version }}
+          name: Unsigned Windows ${{ github.event.inputs.version }}
+          draft: false
+          prerelease: false
+          body: Unsigned Windows build generated via workflow.
+          files: |
             release/${{ github.event.inputs.version }}/self-sign-electron-poc-${{ github.event.inputs.version }}-setup.exe
             release-${{ github.event.inputs.version }}-unsigned.zip
-          if-no-files-found: error
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
