@@ -45,7 +45,7 @@ jobs:
 
       - name: Archive artifacts
         run: |
-          powershell -Command "Compress-Archive release/${{ github.event.inputs.version }}/self-sign-electron-poc-${{ github.event.inputs.version }}-setup.exe release-${{ github.event.inputs.version }}-unsigned.zip"
+          powershell -Command "Compress-Archive -Path 'release/${{ github.event.inputs.version }}/self-sign-electron-poc-${{ github.event.inputs.version }}-setup.exe' -DestinationPath release-${{ github.event.inputs.version }}-unsigned.zip"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
