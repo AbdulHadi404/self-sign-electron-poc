@@ -43,7 +43,7 @@ $b64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes($pfxPath))
 Set-Content -Path $b64Path -Value $b64 -Encoding UTF8
 Set-Content -Path $pwdPath -Value $passwordPlain -Encoding UTF8
 
-Write-Host "Generated files in $outDir:"
+Write-Host "Generated files in ${outDir}:"
 Write-Host "  PFX: $pfxPath"
 Write-Host "  CER: $cerPath"
 Write-Host "  CSC_LINK/CSC_LINK_B64: $b64Path"

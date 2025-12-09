@@ -2,47 +2,46 @@
 
 ## What we changed (repo)
 
-- `electron.vite.config.ts`: set build outputs to `out/main`, `out/preload`, `out/renderer` (matches guide Part E).
-- `electron-builder.yml`: added Windows target (nsis x64), output dir `release/${version}`, enabled signing via PFX env vars, removed old schema-incompatible fields (aligns with guide Part C/D).
-- `package.json`: `build:win` uses `dotenv -e .env` so `CSC_LINK`/`CSC_KEY_PASSWORD` are loaded at build time (guide Part D).
-- `.gitignore`: ignoring `*.pfx`/`*.p12` (guide Part C security note).
-- Created `.env` (locally) to hold secrets; not committed. We used `env.txt` earlier as placeholder, then `.env`.
-- Added GitHub Actions workflow `/.github/workflows/release.yml` for signed Windows releases using secrets `CSC_LINK_B64` (Base64 PFX) and `CSC_KEY_PASSWORD`.
-- Added helper PowerShell scripts in `scripts/shell` (see `docs/scripts-readme.md`):
-  - `create-self-signed-cert.ps1`
+- Build outputs in `electron.vite.config.ts` set to `out/main`, `out/preload`, `out/renderer` (guide Part E).
+- `electron-builder.yml`: NSIS x64 target, output `release/${version}`, env-driven signing (guide Part C/D).
+- `package.json`: `build:win` loads `.env` via `dotenv-cli` to supply `CSC_LINK`/`CSC_KEY_PASSWORD` (guide Part D).
+- `.gitignore`: ignores `*.pfx`, `*.p12`, `cert/`, `scripts/output/`.
+- `.env` (local-only) holds signing secrets; `env.txt` can be generated from scripts/output.
+- GitHub Actions workflow `.github/workflows/release.yml` uses secrets `CSC_LINK_B64` (Base64 PFX) and `CSC_KEY_PASSWORD`.
+- Helper PowerShell scripts in `scripts/shell` (see `docs/scripts-readme.md`):
+  - `create-self-signed-cert.ps1` (generates cert, PFX/CER, Base64, password to `scripts/output/`)
   - `verify-signature.ps1`
 
 ## Steps performed
 
-1. Generate self-signed cert (guide Part B):
-   - PowerShell (admin): `New-SelfSignedCertificate -Type Custom ... -KeyUsage DigitalSignature ... -HashAlgorithm SHA256 -NotAfter (Get-Date).AddYears(5)`
-   - Export PFX with password: `Export-PfxCertificate -Cert $cert -FilePath <path>\self-sign-electron-poc.pfx -Password <securestring>`
-   - Export CER (optional) for trusting locally: `Export-Certificate -Cert $cert -FilePath <path>\self-sign-electron-poc.cer`
+1. Generate self-signed cert (guide Part B) using script:
+   - Run (Admin): `scripts/shell/create-self-signed-cert.ps1`
+   - Outputs to `scripts/output/`:
+     - `self-sign-electron-poc.pfx`, `self-sign-electron-poc.cer`
+     - `csc_link_b64.txt` (use for `CSC_LINK`/`CSC_LINK_B64`)
+     - `csc_key_password.txt` (PFX password)
 
-2. Place certificate files:
-   - Stored PFX (and optional CER) under `self-sign-electron-poc/cert/`.
-
-3. Configure environment (guide Part C Option 1):
+2. Configure environment (guide Part C Option 1):
    - `.env` in project root:
      ```
-     CSC_LINK=C:\Users\Work\Documents\POC\self-sign-electron-poc\cert\self-sign-electron-poc.pfx
-     CSC_KEY_PASSWORD=<your-password>
+     CSC_LINK=<Base64 from scripts/output/csc_link_b64.txt>
+     CSC_KEY_PASSWORD=<password from scripts/output/csc_key_password.txt>
      ```
 
-4. Build config alignment (guide Parts C/E/D):
+3. Build config alignment (guide Parts C/E/D):
    - electron-vite out dirs set to `out/*`.
    - electron-builder targets NSIS x64, uses env-driven signing, output to `release/${version}`.
    - Scripts load env with `dotenv-cli` before build + electron-builder.
 
-5. Build and sign (guide Part F):
+4. Build and sign (guide Part F):
    - Command: `npm run build:win`
-   - electron-builder signed: `self-sign-electron-poc.exe`, `elevate.exe`, uninstaller, and installer with the PFX.
+   - electron-builder signs: `self-sign-electron-poc.exe`, `elevate.exe`, uninstaller, installer.
 
-6. Verify signature (guide Part G):
+5. Verify signature (guide Part G):
    - PowerShell: `Get-AuthenticodeSignature "release\1.0.0\self-sign-electron-poc-1.0.0-setup.exe"`
-   - Result: `Status: Valid`, signer `CN=Self Sign Electron POC, O=Self Sign Electron POC, C=US`, Thumbprint `C21AD77FF0611C5FABCAD75E0006A567A0462089`.
+   - Result observed: `Status: Valid`, signer `CN=Self Sign Electron POC, O=Self Sign Electron POC, C=US`, Thumbprint `C21AD77FF0611C5FABCAD75E0006A567A0462089`.
 
-7. Optional trust for local testing (guide Part H):
+6. Optional trust for local testing (guide Part H):
    - Import CER or PFX into `Local Machine > Trusted Root Certification Authorities` to show your publisher name and reduce warnings on your machine.
 
 ## Build outputs
