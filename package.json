@@ -1,7 +1,7 @@
 {
   "name": "self-sign-electron-poc",
   "version": "1.0.0",
-  "description": "An Electron application with React and TypeScript",
+  "description": "Self Sign Electron POC — Electron + React + TS app",
   "main": "./out/main/index.js",
   "author": "Abdul Hadi <abdulhadi8369@gmail.com>",
   "homepage": "https://electron-vite.org",

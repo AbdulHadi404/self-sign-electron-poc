@@ -1,0 +1,55 @@
+name: Unsigned Windows Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version label for artifacts (e.g., 1.0.1-unsigned)"
+        required: true
+        default: "1.0.1-unsigned"
+
+jobs:
+  build-unsigned:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: self-sign-electron-poc
+
+    env:
+      NODE_VERSION: 20
+      CSC_IDENTITY_AUTO_DISCOVERY: "false"
+      CSC_LINK: ""
+      CSC_KEY_PASSWORD: ""
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: self-sign-electron-poc/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build unsigned (Windows)
+        run: |
+          npm run build
+          electron-builder --win --x64 --config electron-builder.yml --publish never
+
+      - name: Archive artifacts
+        run: |
+          powershell -Command "Compress-Archive release/${{ github.event.inputs.version }}/self-sign-electron-poc-${{ github.event.inputs.version }}-setup.exe release-${{ github.event.inputs.version }}-unsigned.zip"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-windows-${{ github.event.inputs.version }}
+          path: |
+            release/${{ github.event.inputs.version }}/self-sign-electron-poc-${{ github.event.inputs.version }}-setup.exe
+            release-${{ github.event.inputs.version }}-unsigned.zip
+          if-no-files-found: error
+

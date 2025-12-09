@@ -1,3 +1,4 @@
-provider: generic
-url: https://example.com/auto-updates
+provider: github
+owner: AbdulHadi404
+repo: self-sign-electron-poc
 updaterCacheDirName: self-sign-electron-poc-updater

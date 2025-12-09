@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: self-sign-electron-poc
+appId: com.abdulhadi.selfsignpoc
+productName: Self Sign Electron POC
 directories:
   buildResources: build
   output: release/${version}
@@ -46,5 +46,6 @@ appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
 publish:
-  provider: generic
-  url: https://example.com/auto-updates
+  provider: github
+  owner: AbdulHadi404
+  repo: self-sign-electron-poc

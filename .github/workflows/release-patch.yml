@@ -1,0 +1,58 @@
+name: Signed Patch Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g., 1.0.1)"
+        required: true
+        default: "1.0.1"
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: self-sign-electron-poc
+
+    env:
+      NODE_VERSION: 20
+      CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+      CSC_LINK: ${{ secrets.CSC_LINK_B64 }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: self-sign-electron-poc/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and sign (Windows)
+        run: npm run build:win
+
+      - name: Archive artifacts
+        run: |
+          powershell -Command "Compress-Archive release/${{ github.event.inputs.version }}/self-sign-electron-poc-${{ github.event.inputs.version }}-setup.exe release/${{ github.event.inputs.version }}/self-sign-electron-poc-${{ github.event.inputs.version }}-setup.exe.blockmap release-${{ github.event.inputs.version }}-signed.zip"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          name: Signed Windows ${{ github.event.inputs.version }}
+          draft: false
+          prerelease: false
+          body: Signed Windows build generated via workflow.
+          files: |
+            release/${{ github.event.inputs.version }}/self-sign-electron-poc-${{ github.event.inputs.version }}-setup.exe
+            release/${{ github.event.inputs.version }}/self-sign-electron-poc-${{ github.event.inputs.version }}-setup.exe.blockmap
+            release-${{ github.event.inputs.version }}-signed.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
